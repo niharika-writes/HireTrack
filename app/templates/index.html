@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}HireTrack - Campus Placement Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --company-color: #3b6ea8;
+        --student-color: #27ae60;
+        --admin-color: #f39c12;
+
+        --light-bg: #f5f6f8;
+        --card-white: #ffffff;
+        --border-light: #e8e8e8;
+        --text-dark: #2c2c2c;
+    }
+
+    body {
+        background-color: var(--light-bg);
+    }
+
+    /* HERO */
+
+    .home-hero {
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg,#3b6ea8 0%,#2d5580 50%,rgba(59,110,168,.95) 100%);
+        padding: 4rem 0;
+        color: white;
+    }
+
+    .home-content {
+        text-align:center;
+    }
+
+    .home-title{
+        font-weight:800;
+        font-size:3.5rem;
+        margin-bottom:.6rem;
+    }
+
+    .home-subtitle{
+        font-size:1.4rem;
+        font-weight:500;
+        margin-bottom:1rem;
+    }
+
+    .home-description{
+        max-width:700px;
+        margin:auto;
+        margin-bottom:3rem;
+        font-size:1.05rem;
+        line-height:1.6;
+        color:rgba(255,255,255,.9);
+    }
+
+    .hero-buttons{
+        display:flex;
+        gap:1.2rem;
+        justify-content:center;
+        flex-wrap:wrap;
+    }
+
+    .btn-hero{
+        padding:.85rem 2rem;
+        font-weight:600;
+        border-radius:6px;
+        text-decoration:none;
+        transition:.3s;
+    }
+
+    .btn-hero-primary{
+        background:white;
+        color:#3b6ea8;
+        border:2px solid white;
+    }
+
+    .btn-hero-outline{
+        border:2px solid white;
+        color:white;
+    }
+
+    .btn-hero:hover{
+        transform:translateY(-2px);
+        box-shadow:0 8px 20px rgba(0,0,0,.2);
+    }
+
+    /* FEATURE CARDS */
+
+    .features-section{
+        padding:4rem 0;
+    }
+
+    .role-card{
+        background:white;
+        border-radius:8px;
+        box-shadow:0 2px 8px rgba(0,0,0,.08);
+        transition:.3s;
+        height:100%;
+        display:flex;
+        flex-direction:column;
+        padding:2rem 1.5rem;
+        border-top:4px solid transparent;
+    }
+
+    .role-card:hover{
+        transform:translateY(-8px);
+        box-shadow:0 12px 28px rgba(0,0,0,.18);
+    }
+
+    /* ROLE COLORS */
+
+    .company-card{
+        border-top:4px solid var(--company-color);
+    }
+
+    .student-card{
+        border-top:4px solid var(--student-color);
+    }
+
+    .admin-card{
+        border-top:4px solid var(--admin-color);
+    }
+
+    .role-card-title{
+        font-weight:700;
+        font-size:1.35rem;
+        margin-bottom:.7rem;
+        color:var(--text-dark);
+    }
+
+    .role-card-description{
+        color:#666;
+        font-size:.95rem;
+        margin-bottom:2rem;
+        flex-grow:1;
+        line-height:1.5;
+    }
+
+    .role-card-buttons{
+        display:flex;
+        flex-direction:column;
+        gap:.75rem;
+    }
+
+    .btn-role{
+        padding:.7rem 1.2rem;
+        font-weight:600;
+        border-radius:6px;
+        text-decoration:none;
+        transition:.25s;
+    }
+
+    .btn-register{
+        background:#3b6ea8;
+        border:1px solid #3b6ea8;
+        color:white;
+    }
+
+    .btn-register:hover{
+        background:#2d5580;
+        border-color:#2d5580;
+        transform:translateY(-2px);
+    }
+
+    .btn-login{
+        border:1.5px solid #3b6ea8;
+        color:#3b6ea8;
+        background:transparent;
+    }
+
+    .btn-login:hover{
+        background:#3b6ea8;
+        color:white;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<div class="home-hero">
+    <div class="container">
+        <div class="home-content">
+            <h1 class="home-title">HireTrack</h1>
+            <p class="home-subtitle">Simplifying Campus Recruitment</p>
+
+            <p class="home-description">
+                Connect companies with talented students and streamline campus placements with a modern recruitment management system.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="{{ url_for('auth.register') }}?type=company" class="btn-hero btn-hero-primary">
+                    Register Company
+                </a>
+
+                <a href="{{ url_for('auth.register') }}?type=student" class="btn-hero btn-hero-outline">
+                    Register Student
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- CARDS -->
+<div class="features-section">
+    <div class="container">
+
+        <div class="row g-4">
+
+            <!-- COMPANY -->
+            <div class="col-lg-4 col-md-6">
+                <div class="role-card company-card">
+
+                    <div class="role-card-title">
+                        For Companies
+                    </div>
+
+                    <p class="role-card-description">
+                        Post job openings, review student applications, and manage placement drives efficiently.
+                    </p>
+
+                    <div class="role-card-buttons">
+
+                        <a href="{{ url_for('auth.register') }}?type=company"
+                           class="btn btn-role btn-register">
+                           Register as Company
+                        </a>
+
+                        <a href="{{ url_for('auth.login') }}?role=company"
+                           class="btn btn-role btn-login">
+                           Login
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- STUDENT -->
+            <div class="col-lg-4 col-md-6">
+                <div class="role-card student-card">
+
+                    <div class="role-card-title">
+                        For Students
+                    </div>
+
+                    <p class="role-card-description">
+                        Browse placement drives, apply for opportunities, and track your applications easily.
+                    </p>
+
+                    <div class="role-card-buttons">
+
+                        <a href="{{ url_for('auth.register') }}?type=student"
+                           class="btn btn-role btn-register">
+                           Register as Student
+                        </a>
+
+                        <a href="{{ url_for('auth.login') }}?role=student"
+                           class="btn btn-role btn-login">
+                           Login
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ADMIN -->
+            <div class="col-lg-4 col-md-6">
+                <div class="role-card admin-card">
+
+                    <div class="role-card-title">
+                        For Admin
+                    </div>
+
+                    <p class="role-card-description">
+                        Manage companies, students and placement drives from a single dashboard.
+                    </p>
+
+                    <div class="role-card-buttons">
+
+                        <a href="{{ url_for('auth.login') }}?role=admin"
+                           class="btn btn-role btn-register">
+                           Admin Login
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

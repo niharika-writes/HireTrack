@@ -1,0 +1,520 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - Placement Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --student-primary: #3b6ea8;
+        --student-secondary: #6fa4e6;
+        --light-bg: #f5f6f8;
+        --card-white: #ffffff;
+        --border-light: #e8e8e8;
+        --border-dark: #d0d0d0;
+        --applied-grey: #6c757d;
+        --shortlisted-yellow: #ffc107;
+        --selected-green: #28a745;
+        --rejected-red: #dc3545;
+    }
+    
+    body {
+        background-color: var(--light-bg);
+    }
+    
+    .student-header {
+        color: #2c2c2c;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .quick-actions-container {
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .quick-actions-container .btn {
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-browse, .btn-applications, .btn-profile {
+        background-color: var(--student-primary);
+        border-color: var(--student-primary);
+        color: white;
+    }
+    
+    .btn-browse:hover, .btn-applications:hover, .btn-profile:hover {
+        background-color: #2d5580;
+        border-color: #2d5580;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 110, 168, 0.3);
+    }
+    
+    .section-card {
+        background: var(--card-white);
+        border: none;
+        border-top: 4px solid var(--student-primary);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .section-card-header {
+        background: transparent;
+        color: #2c2c2c;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .section-card-header h5 {
+        color: #2c2c2c;
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .section-card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Organizations Section */
+    .organizations-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .organization-card {
+        background: var(--card-white);
+        border: 1px solid var(--border-light);
+        border-radius: 6px;
+        padding: 1.4rem;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 140px;
+    }
+    
+    .organization-card:hover {
+        box-shadow: 0 6px 16px rgba(59, 110, 168, 0.12);
+        border-color: var(--student-secondary);
+        transform: translateY(-3px);
+    }
+    
+    .organization-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c2c2c;
+        margin-bottom: 0.5rem;
+    }
+    
+    .organization-tagline {
+        font-size: 0.85rem;
+        color: #999;
+        margin-bottom: 1rem;
+    }
+    
+    .organization-action {
+        text-align: right;
+        margin-top: auto;
+    }
+    
+    .organization-action .btn {
+        padding: 0.4rem 0.9rem;
+        font-size: 0.9rem;
+        background-color: var(--student-primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    
+    .organization-action .btn:hover {
+        background-color: #2d5580;
+        color: white;
+    }
+    
+    .no-data-message {
+        text-align: center;
+        color: #999;
+        padding: 2rem 0;
+        font-style: italic;
+    }
+    
+    /* Table Styling */
+    .table {
+        background: var(--card-white);
+        margin: 0;
+    }
+    
+    .table thead {
+        background-color: #fafafa;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .table thead th {
+        color: #2c2c2c;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        border: none;
+        background-color: #fafafa;
+    }
+    
+    .table tbody td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Status Badges */
+    .badge {
+        padding: 0.4rem 0.8rem;
+        font-weight: 500;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+    
+    .badge-applied {
+        background-color: var(--applied-grey);
+        color: white;
+    }
+    
+    .badge-shortlisted {
+        background-color: var(--shortlisted-yellow);
+        color: #333;
+    }
+    
+    .badge-selected {
+        background-color: var(--selected-green);
+        color: white;
+    }
+    
+    .badge-rejected {
+        background-color: var(--rejected-red);
+        color: white;
+    }
+    
+    .badge-closed {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    /* Action Buttons */
+    .btn-view-details {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        background-color: var(--student-primary);
+        color: white;
+        border: none;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-view-details:hover {
+        background-color: #2d5580;
+        color: white;
+    }
+    
+    .btn-view-details:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <h1 class="student-header">Welcome {{ current_user.name }}</h1>
+    
+    <!-- Quick Actions Section (Near Top) -->
+    <div class="quick-actions-container">
+        <a href="{{ url_for('student.view_drives') }}" class="btn btn-browse">
+            <i class="bi bi-search"></i> Browse Available Drives
+        </a>
+        <a href="{{ url_for('student.view_applications') }}" class="btn btn-applications">
+            <i class="bi bi-file-text"></i> View My Applications
+        </a>
+        <a href="{{ url_for('student.profile') }}" class="btn btn-profile">
+            <i class="bi bi-person"></i> Edit Profile
+        </a>
+    </div>
+    
+    <!-- Available Organizations Section -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <h5>Available Organizations</h5>
+        </div>
+        <div class="section-card-body">
+            {% if companies %}
+                <div class="organizations-list">
+                    {% for company in companies %}
+                        <div class="organization-card">
+                            <div class="organization-name">{{ company.company_name }}</div>
+                            <div class="organization-action">
+                                <button class="btn btn-sm btn-view-details" data-bs-toggle="modal" data-bs-target="#companyModal{{ company.id }}">
+                                    View Details →
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-data-message">No companies available yet.</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Company Details Modals -->
+    {% for company in companies %}
+        <div class="modal fade" id="companyModal{{ company.id }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border: none; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);">
+                    <!-- Header -->
+                    <div class="modal-header" style="background: linear-gradient(135deg, #3b6ea8 0%, #2d5580 100%); color: white; border: none;">
+                        <div>
+                            <h5 class="modal-title" style="color: white; font-weight: 700; font-size: 1.3rem;">{{ company.company_name }}</h5>
+                            <small style="opacity: 0.9;">Organization Profile</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    
+                    <!-- Body -->
+                    <div class="modal-body" style="padding: 2rem;">
+                        <!-- Email -->
+                        <div style="margin-bottom: 1.8rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e8e8e8;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="font-size: 1.2rem; color: #3b6ea8;">✉</span>
+                                <span style="font-weight: 600; color: #2c2c2c; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">Email</span>
+                            </div>
+                            <p style="margin: 0; color: #555; font-size: 1rem; margin-left: 2rem;"><strong>{{ company.email }}</strong></p>
+                        </div>
+                        
+                        <!-- Website -->
+                        <div style="margin-bottom: 1.8rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e8e8e8;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="font-size: 1.2rem; color: #3b6ea8;">🌐</span>
+                                <span style="font-weight: 600; color: #2c2c2c; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">Website</span>
+                            </div>
+                            <p style="margin: 0; margin-left: 2rem;">
+                                {% if company.website %}
+                                    <a href="{{ company.website }}" target="_blank" style="color: #3b6ea8; text-decoration: none; font-weight: 500;">{{ company.website }}</a>
+                                {% else %}
+                                    <span style="color: #999;">Not provided</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <!-- HR Contact -->
+                        <div style="margin-bottom: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="font-size: 1.2rem; color: #3b6ea8;">👤</span>
+                                <span style="font-weight: 600; color: #2c2c2c; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">HR Contact</span>
+                            </div>
+                            <p style="margin: 0; color: #555; font-size: 1rem; margin-left: 2rem;"><strong>{{ company.hr_contact or 'Not provided' }}</strong></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="modal-footer" style="border-top: 1px solid #e8e8e8; background-color: #f9f9f9;">
+                        <button type="button" class="btn" style="background-color: #3b6ea8; color: white; border: none; border-radius: 5px; padding: 0.5rem 1.2rem;" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- Applied Drives Section -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <h5>Applied Drives</h5>
+        </div>
+        <div class="section-card-body">
+            {% if app_map %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%">#</th>
+                                <th>Drive Name</th>
+                                <th>Company</th>
+                                <th>Applied Date</th>
+                                <th>Status</th>
+                                <th style="width: 15%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set counter = [] %}
+                            {% for drive_id, application in app_map.items() %}
+                                {% set drive = application.placement_drive %}
+                                {% if counter.append(counter|length + 1) %}{% endif %}
+                                <tr>
+                                    <td>{{ counter|length }}</td>
+                                    <td><strong>{{ drive.job_title }}</strong></td>
+                                    <td>{{ drive.company.company_name }}</td>
+                                    <td>{{ application.applied_at.strftime('%d %b %Y') }}</td>
+                                    <td>
+                                        {% if application.status == 'Applied' %}
+                                            <span class="badge badge-applied">Applied</span>
+                                        {% elif application.status == 'Shortlisted' %}
+                                            <span class="badge badge-shortlisted">Shortlisted</span>
+                                        {% elif application.status == 'Selected' %}
+                                            <span class="badge badge-selected">Selected</span>
+                                        {% elif application.status == 'Rejected' %}
+                                            <span class="badge badge-rejected">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-view-details" data-bs-toggle="modal" data-bs-target="#driveModal{{ drive.id }}">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="no-data-message">No applications yet. Start applying for drives!</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Drive Details Modals -->
+    {% if app_map %}
+        {% for drive_id, application in app_map.items() %}
+            {% set drive = application.placement_drive %}
+            <div class="modal fade" id="driveModal{{ drive.id }}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: var(--student-primary); color: white; border: none;">
+                            <h5 class="modal-title" style="color: white;">{{ drive.job_title }}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <small class="text-muted d-block">Company</small>
+                                    <strong>{{ drive.company.company_name }}</strong>
+                                </div>
+                                <div class="col-sm-6">
+                                    <small class="text-muted d-block">Position</small>
+                                    <strong>{{ drive.job_title }}</strong>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <small class="text-muted d-block">Salary/CTC</small>
+                                    <strong>{{ drive.salary or 'N/A' }}</strong>
+                                </div>
+                                <div class="col-sm-6">
+                                    <small class="text-muted d-block">Application Deadline</small>
+                                    <strong>{{ drive.application_deadline.strftime('%d %b %Y') }}</strong>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="mb-3">
+                                <strong>Job Description</strong>
+                                <p style="white-space: pre-wrap; color: #555; margin-top: 0.5rem;">{{ drive.job_description }}</p>
+                            </div>
+                            {% if drive.eligibility_criteria %}
+                                <div class="mb-0">
+                                    <strong>Eligibility Criteria</strong>
+                                    <p style="white-space: pre-wrap; color: #555; margin-top: 0.5rem;">{{ drive.eligibility_criteria }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Closed Drives Section -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <h5>Closed Drives</h5>
+        </div>
+        <div class="section-card-body">
+            {% set closed_drives = [] %}
+            {% for drive_id, application in app_map.items() %}
+                {% set drive = application.placement_drive %}
+                {% if drive.status == 'Closed' %}
+                    {% if closed_drives.append(drive_id) %}{% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if closed_drives %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%">#</th>
+                                <th>Drive Name</th>
+                                <th>Company</th>
+                                <th>Status</th>
+                                <th style="width: 15%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set close_counter = [] %}
+                            {% for drive_id, application in app_map.items() %}
+                                {% set drive = application.placement_drive %}
+                                {% if drive.status == 'Closed' %}
+                                    {% if close_counter.append(close_counter|length + 1) %}{% endif %}
+                                    <tr>
+                                        <td>{{ close_counter|length }}</td>
+                                        <td><strong>{{ drive.job_title }}</strong></td>
+                                        <td>{{ drive.company.company_name }}</td>
+                                        <td><span class="badge badge-closed">Closed</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-view-details" data-bs-toggle="modal" data-bs-target="#driveModal{{ drive.id }}" disabled>
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="no-data-message">No closed drives</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh dashboard every 5 seconds
+setInterval(function() {
+    location.reload();
+}, 5000);
+</script>
+{% endblock %}

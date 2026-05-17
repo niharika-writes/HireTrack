@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Companies - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.admin-title{
+font-weight:700;
+color:#2c3e50;
+margin-bottom:20px;
+}
+
+.admin-accent{
+border-bottom:4px solid #f39c12;
+width:70px;
+margin-top:6px;
+margin-bottom:25px;
+}
+
+.search-bar{
+background:white;
+padding:12px;
+border-radius:8px;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+.search-bar .btn{
+background:#f39c12;
+border:none;
+color:white;
+font-weight:600;
+}
+
+.search-bar .btn:hover{
+background:#d68910;
+}
+
+.table-container{
+background:white;
+border-radius:8px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+overflow:hidden;
+}
+
+.table thead{
+background:#2c3e50;
+color:white;
+}
+
+.table td{
+vertical-align:middle;
+}
+
+.btn-remove{
+background:#e74c3c;
+border:none;
+color:white;
+}
+
+.btn-remove:hover{
+background:#c0392b;
+}
+
+.btn-approve{
+background:#27ae60;
+border:none;
+}
+
+.btn-approve:hover{
+background:#1e8449;
+}
+
+.btn-reject{
+background:#f39c12;
+border:none;
+color:white;
+}
+
+.btn-reject:hover{
+background:#d68910;
+}
+
+.btn-visit{
+border:1px solid #3498db;
+color:#3498db;
+}
+
+.btn-visit{
+border:1px solid #3498db;
+color:#3498db;
+transition:0.2s;
+}
+
+.btn-visit:hover{
+background:#3498db;
+color:white;
+}
+.table tbody tr:hover{
+background:#f8f9fa;
+}
+.table thead{
+background:#2c3e50;
+border-bottom:3px solid #f39c12;
+color:white;
+}
+
+.pagination .page-link{
+color:#f39c12;
+}
+
+.pagination .page-item.active .page-link{
+background:#f39c12;
+border-color:#f39c12;
+color:white;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+<h2 class="admin-title mb-1">Manage Companies</h2>
+<div class="admin-accent"></div>
+</div>
+
+<form method="GET" style="width:350px;">
+<div class="input-group">
+
+<input type="text"
+class="form-control"
+name="search"
+placeholder="Search company..."
+value="{{ search or '' }}">
+
+<button class="btn btn-warning" type="submit">
+Search
+</button>
+
+{% if search %}
+<a href="{{ url_for('admin.manage_companies') }}" class="btn btn-secondary">
+Clear
+</a>
+{% endif %}
+
+</div>
+</form>
+
+</div>
+
+
+<div class="table-container">
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle mb-0">
+
+<thead>
+<tr>
+<th>Company Name</th>
+<th>Email</th>
+<th>HR Contact</th>
+<th>Website</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% if companies.items %}
+
+{% for company in companies.items %}
+
+<tr>
+
+<td><strong>{{ company.company_name }}</strong></td>
+
+<td>{{ company.email }}</td>
+
+<td>{{ company.hr_contact }}</td>
+
+<td>
+
+{% if company.website %}
+
+<a href="{{ company.website }}"
+target="_blank"
+class="btn btn-sm btn-visit">
+Visit Website
+</a>
+
+{% else %}
+
+<span class="text-muted">N/A</span>
+
+{% endif %}
+
+</td>
+
+<td>
+
+{% if company.approval_status == 'Pending' %}
+
+<span class="badge bg-warning text-dark">
+Pending
+</span>
+
+{% elif company.approval_status == 'Approved' %}
+
+<span class="badge bg-success">
+Approved
+</span>
+
+{% else %}
+
+<span class="badge bg-danger">
+Rejected
+</span>
+
+{% endif %}
+
+</td>
+
+<td>
+
+<div class="d-flex gap-2">
+
+{% if company.approval_status == 'Pending' %}
+
+<form method="POST"
+action="{{ url_for('admin.approve_company', company_id=company.id) }}">
+
+<button type="submit"
+class="btn btn-sm btn-approve">
+Approve
+</button>
+
+</form>
+
+<form method="POST"
+action="{{ url_for('admin.reject_company', company_id=company.id) }}">
+
+<button type="submit"
+class="btn btn-sm btn-reject">
+Reject
+</button>
+
+</form>
+
+{% endif %}
+
+<form method="POST"
+action="{{ url_for('admin.delete_company', company_id=company.id) }}"
+onsubmit="return confirm('Remove this company from the system?');">
+
+<button type="submit"
+class="btn btn-sm btn-remove">
+Remove
+</button>
+
+</form>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+
+<td colspan="6"
+class="text-center text-muted py-4">
+
+No companies found
+
+</td>
+
+</tr>
+
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+
+{% if companies.pages > 1 %}
+
+<nav class="mt-4">
+
+<ul class="pagination justify-content-center">
+
+{% if companies.has_prev %}
+
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.manage_companies', page=companies.prev_num, search=search) }}">
+Previous
+</a>
+</li>
+
+{% endif %}
+
+{% for page_num in companies.iter_pages() %}
+
+{% if page_num %}
+
+{% if page_num == companies.page %}
+
+<li class="page-item active">
+<span class="page-link">
+{{ page_num }}
+</span>
+</li>
+
+{% else %}
+
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.manage_companies', page=page_num, search=search) }}">
+{{ page_num }}
+</a>
+</li>
+
+{% endif %}
+
+{% endif %}
+
+{% endfor %}
+
+{% if companies.has_next %}
+
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.manage_companies', page=companies.next_num, search=search) }}">
+Next
+</a>
+</li>
+
+{% endif %}
+
+</ul>
+
+</nav>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

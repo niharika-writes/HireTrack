@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Create Placement Drive{% endblock %}
+
+{% block extra_css %}
+<style>
+
+:root{
+--company-primary:#2c2c2c;
+--company-accent:#3b6ea8;
+--light-bg:#f5f6f8;
+--card-white:#ffffff;
+--border-light:#e8e8e8;
+}
+
+body{
+background:var(--light-bg);
+}
+
+/* Card */
+
+.form-card{
+background:white;
+border-radius:8px;
+border-top:4px solid var(--company-accent);
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+overflow:hidden;
+}
+
+.form-header{
+background:#2c3e50;
+color:white;
+padding:16px 22px;
+font-weight:600;
+font-size:18px;
+}
+
+.form-body{
+padding:25px;
+}
+
+/* Inputs */
+
+.form-control{
+border:1px solid #ced4da;
+padding:10px;
+}
+
+.form-control:focus{
+border-color:var(--company-accent);
+box-shadow:none;
+}
+
+/* Buttons */
+
+.btn-company{
+background:var(--company-accent);
+color:white;
+border:none;
+padding:10px;
+font-weight:500;
+}
+
+.btn-company:hover{
+background:#2d5580;
+color:white;
+}
+
+.btn-back{
+background:#6c757d;
+color:white;
+border:none;
+padding:10px;
+}
+
+.btn-back:hover{
+background:#5a6268;
+color:white;
+}
+
+</style>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container mt-4">
+
+<div class="row justify-content-center">
+<div class="col-md-8">
+
+<div class="form-card">
+
+<div class="form-header">
+Create New Placement Drive
+</div>
+
+<div class="form-body">
+
+<form method="POST" novalidate>
+
+{{ form.hidden_tag() }}
+
+<div class="mb-3">
+{{ form.job_title.label(class="form-label") }}
+{{ form.job_title(class="form-control") }}
+</div>
+
+<div class="mb-3">
+{{ form.job_description.label(class="form-label") }}
+{{ form.job_description(class="form-control", rows="5") }}
+</div>
+
+<div class="mb-3">
+{{ form.eligibility_criteria.label(class="form-label") }}
+{{ form.eligibility_criteria(class="form-control", rows="4", placeholder="e.g., CGPA ≥ 7.0, no active backlogs") }}
+</div>
+
+<div class="mb-3">
+{{ form.salary.label(class="form-label") }}
+{{ form.salary(class="form-control", placeholder="e.g., 6-8 LPA") }}
+</div>
+
+<div class="mb-3">
+{{ form.application_deadline.label(class="form-label") }}
+<small class="text-muted d-block mb-2">Format: YYYY-MM-DD</small>
+{{ form.application_deadline(class="form-control") }}
+</div>
+
+<div class="mb-3">
+{{ form.submit(class="btn btn-company w-100") }}
+</div>
+
+</form>
+
+<a href="{{ url_for('company.view_drives') }}"
+class="btn btn-back w-100">
+Back to Drives
+</a>
+
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+{% endblock %}

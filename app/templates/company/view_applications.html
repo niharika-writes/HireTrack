@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}Applications for {{ drive.job_title }} - Company{% endblock %}
+
+{% block extra_css %}
+<style>
+
+:root{
+--company-accent:#3b6ea8;
+--border-light:#e8e8e8;
+}
+
+/* Section Card */
+
+.company-section{
+border-top:4px solid var(--company-accent);
+border-radius:8px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+.company-section .card-header{
+background:#f8f9fa;
+border-bottom:2px solid var(--company-accent);
+font-weight:600;
+}
+
+/* Application item */
+
+.application-item{
+border:1px solid var(--border-light);
+border-radius:6px;
+padding:16px;
+margin-bottom:12px;
+background:white;
+}
+
+.application-item:hover{
+background:#fafafa;
+}
+
+/* Status badge */
+
+.status-badge{
+font-size:13px;
+padding:6px 10px;
+}
+
+/* View profile button */
+
+.btn-profile{
+background:#3b6ea8;
+color:white;
+border:none;
+padding:5px 12px;
+font-size:13px;
+}
+
+.btn-profile:hover{
+background:#2d5580;
+color:white;
+}
+
+/* Dropdown button */
+
+.btn-action{
+border:1px solid #ced4da;
+font-size:13px;
+padding:5px 10px;
+}
+
+</style>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container mt-4">
+
+<!-- Header -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+<h3>{{ drive.job_title }}</h3>
+<p class="text-muted mb-0">{{ drive.company.company_name }}</p>
+</div>
+
+<a href="{{ url_for('company.view_drives') }}" class="btn btn-outline-secondary">
+Back
+</a>
+
+</div>
+
+
+
+<!-- Statistics -->
+
+<div class="row mb-4">
+
+<div class="col-md-3">
+<div class="card text-center">
+<div class="card-body">
+<h6 class="text-muted">Total</h6>
+<h3 class="mb-0">{{ drive.get_application_count() }}</h3>
+</div>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card text-center">
+<div class="card-body">
+<h6 class="text-muted">Shortlisted</h6>
+<h3 class="mb-0 text-warning">{{ drive.get_shortlisted_count() }}</h3>
+</div>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card text-center">
+<div class="card-body">
+<h6 class="text-muted">Selected</h6>
+<h3 class="mb-0 text-success">{{ drive.get_selected_count() }}</h3>
+</div>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card text-center">
+<div class="card-body">
+<h6 class="text-muted">Rejected</h6>
+<h3 class="mb-0 text-danger">
+{{ drive.get_application_count() - drive.get_shortlisted_count() - drive.get_selected_count() }}
+</h3>
+</div>
+</div>
+</div>
+
+</div>
+
+
+
+<!-- Received Applications -->
+
+<div class="card company-section">
+
+<div class="card-header">
+Received Applications
+</div>
+
+<div class="card-body">
+
+{% if applications.items %}
+
+{% for app in applications.items %}
+
+<div class="application-item">
+
+<div class="d-flex justify-content-between align-items-center">
+
+<!-- Candidate Info -->
+
+<div>
+
+<h6 class="mb-1">
+<strong>{{ app.student.name }}</strong>
+</h6>
+
+<small class="text-muted">
+Roll: {{ app.student.roll_number }} |
+CGPA: {{ app.student.cgpa }} |
+Applied: {{ app.applied_at.strftime('%Y-%m-%d') }}
+</small>
+
+</div>
+
+
+<!-- Right Controls -->
+
+<div class="d-flex gap-2 align-items-center">
+
+<!-- Status -->
+
+<span class="badge status-badge
+{% if app.status == 'Applied' %}
+bg-info
+{% elif app.status == 'Shortlisted' %}
+bg-warning text-dark
+{% elif app.status == 'Selected' %}
+bg-success
+{% else %}
+bg-danger
+{% endif %}
+">
+{{ app.status }}
+</span>
+
+
+<!-- View Profile -->
+
+<a href="{{ url_for('company.review_application', app_id=app.id) }}"
+class="btn btn-profile btn-sm">
+View Profile
+</a>
+
+
+<!-- Actions -->
+
+<div class="btn-group">
+
+<button type="button"
+class="btn btn-action btn-sm dropdown-toggle"
+data-bs-toggle="dropdown">
+Actions
+</button>
+
+<ul class="dropdown-menu dropdown-menu-end">
+
+<li><h6 class="dropdown-header">Change Status</h6></li>
+
+{% if app.status != 'Shortlisted' %}
+<li>
+<a href="javascript:void(0);"
+class="dropdown-item"
+onclick="document.getElementById('form-shortlist-{{ app.id }}').submit(); return false;">
+Shortlist
+</a>
+
+<form id="form-shortlist-{{ app.id }}"
+method="POST"
+action="{{ url_for('company.shortlist_application', app_id=app.id) }}"
+style="display:none;">
+</form>
+</li>
+{% endif %}
+
+
+{% if app.status != 'Selected' %}
+<li>
+<a href="javascript:void(0);"
+class="dropdown-item"
+onclick="document.getElementById('form-select-{{ app.id }}').submit(); return false;">
+Select
+</a>
+
+<form id="form-select-{{ app.id }}"
+method="POST"
+action="{{ url_for('company.select_application', app_id=app.id) }}"
+style="display:none;">
+</form>
+</li>
+{% endif %}
+
+
+{% if app.status != 'Rejected' %}
+<li>
+<a href="javascript:void(0);"
+class="dropdown-item text-danger"
+onclick="if(confirm('Reject this candidate?')) document.getElementById('form-reject-{{ app.id }}').submit(); return false;">
+Reject
+</a>
+
+<form id="form-reject-{{ app.id }}"
+method="POST"
+action="{{ url_for('company.reject_application', app_id=app.id) }}"
+style="display:none;">
+</form>
+</li>
+{% endif %}
+
+</ul>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+
+
+<!-- Pagination -->
+
+{% if applications.pages > 1 %}
+
+<nav class="mt-4">
+
+<ul class="pagination justify-content-center">
+
+{% if applications.has_prev %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('company.view_applications', drive_id=drive.id, page=applications.prev_num) }}">
+Previous
+</a>
+</li>
+{% endif %}
+
+{% for page_num in applications.iter_pages() %}
+{% if page_num %}
+
+{% if page_num == applications.page %}
+<li class="page-item active">
+<span class="page-link">{{ page_num }}</span>
+</li>
+{% else %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('company.view_applications', drive_id=drive.id, page=page_num) }}">
+{{ page_num }}
+</a>
+</li>
+{% endif %}
+
+{% endif %}
+{% endfor %}
+
+{% if applications.has_next %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('company.view_applications', drive_id=drive.id, page=applications.next_num) }}">
+Next
+</a>
+</li>
+{% endif %}
+
+</ul>
+
+</nav>
+
+{% endif %}
+
+
+{% else %}
+
+<p class="text-muted text-center py-4">
+No applications yet
+</p>
+
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

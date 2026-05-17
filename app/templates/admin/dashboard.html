@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Placement Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-dark: #2c3e50;
+        --secondary-dark: #34495e;
+        --light-bg: #f5f6f8;
+        --card-white: #ffffff;
+        --border-light: #e0e0e0;
+    }
+    
+    body {
+        background-color: var(--light-bg);
+    }
+    
+    .admin-header {
+        color: var(--primary-dark);
+        font-weight: 700;
+    }
+    
+    .summary-card {
+    background: var(--card-white);
+    border: 1px solid var(--border-light);
+    border-top: 4px solid #f39c12;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+}
+    
+    .summary-card h5 {
+        color: var(--secondary-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .summary-card .count {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin: 1rem 0;
+    }
+    
+    .summary-card .badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-view {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+    background-color: #d68910;
+    text-decoration: none;
+    color: white;
+    transform: translateY(-1px);
+}
+    
+    .search-container {
+        background: var(--card-white);
+        border: 1px solid var(--border-light);
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .search-container input {
+        border: none;
+        outline: none;
+        background: transparent;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header with Search -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h3 class="admin-header mb-0">Admin Dashboard</h3>
+        <div class="search-container" style="width: 300px;">
+            <input type="text" placeholder="Search students, companies...">
+        </div>
+    </div>
+    
+    <!-- Statistics Cards Row -->
+    <div class="row mb-5">
+        <div class="col-md-6 col-lg-3">
+<div class="dashboard-card" style="background: linear-gradient(135deg,#3b6ea8,#2d5580);">
+                    <h5>Total Students</h5>
+                <div class="number" id="total-students">{{ total_students }}</div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #27ae60, #229954);">
+                <h5>Total Companies</h5>
+                <div class="number" id="total-companies">{{ total_companies }}</div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #f3b34d, #d68910);">
+                <h5>Total Applications</h5>
+                <div class="number" id="total-applications">{{ total_applications }}</div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                <h5>Total Drives</h5>
+                <div class="number" id="total-drives">{{ total_drives }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Panels Row -->
+    <div class="row">
+        <!-- Pending Company Approvals -->
+        <div class="col-md-6 col-lg-4">
+            <div class="summary-card">
+                <h5>Pending Company Approvals</h5>
+                <div class="count">{{ pending_companies }}</div>
+                <p class="text-muted small">Companies awaiting approval</p>
+                <a href="{{ url_for('admin.manage_companies') }}" class="btn-view">Review Companies →</a>
+            </div>
+        </div>
+        
+        <!-- Pending Drive Approvals -->
+        <div class="col-md-6 col-lg-4">
+            <div class="summary-card">
+                <h5>Pending Drive Approvals</h5>
+                <div class="count">{{ pending_drives }}</div>
+                <p class="text-muted small">Drives awaiting approval</p>
+                <a href="{{ url_for('admin.manage_drives') }}" class="btn-view">Review Drives →</a>
+            </div>
+        </div>
+        
+        <!-- Recent Applications -->
+        <div class="col-md-6 col-lg-4">
+            <div class="summary-card">
+                <h5>Recent Applications</h5>
+                <div class="count">{{ total_applications }}</div>
+                <p class="text-muted small">Total student applications</p>
+                <a href="{{ url_for('admin.view_applications') }}" class="btn-view">View Applications →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh dashboard statistics every 5 seconds
+async function refreshDashboardData() {
+    try {
+        const response = await fetch('{{ url_for("admin.api_admin_dashboard_data") }}');
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        document.getElementById('total-students').textContent = data.total_students;
+        document.getElementById('total-companies').textContent = data.total_companies;
+        document.getElementById('total-applications').textContent = data.total_applications;
+        document.getElementById('total-drives').textContent = data.total_drives;
+    } catch (e) {}
+}
+
+// First call immediately, then every 5 seconds
+refreshDashboardData();
+setInterval(refreshDashboardData, 5000);
+</script>
+{% endblock %}

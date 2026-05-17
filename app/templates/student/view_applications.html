@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}My Applications{% endblock %}
+
+{% block extra_css %}
+<style>
+
+:root{
+--student-primary:#3b6ea8;
+--student-dark:#2d5580;
+--light-bg:#f5f6f8;
+--border-light:#e8e8e8;
+}
+
+body{
+background:var(--light-bg);
+}
+
+.page-title{
+font-weight:700;
+margin-bottom:20px;
+}
+
+/* Table Card */
+
+.app-card{
+background:white;
+border-radius:8px;
+border-top:4px solid var(--student-primary);
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+overflow:hidden;
+}
+
+.table{
+margin:0;
+}
+
+.table thead{
+background:#2c3e50;
+color:white;
+}
+
+.table th{
+border:none;
+padding:14px 16px;
+}
+
+.table td{
+padding:14px 16px;
+vertical-align:middle;
+border-bottom:1px solid var(--border-light);
+}
+
+.table tbody tr:hover{
+background:#fafafa;
+}
+
+/* Status */
+
+.badge-applied{
+background:#6c757d;
+}
+
+.badge-shortlisted{
+background:#ffc107;
+color:#333;
+}
+
+.badge-selected{
+background:#28a745;
+}
+
+.badge-rejected{
+background:#dc3545;
+}
+
+.no-data{
+text-align:center;
+padding:30px;
+color:#888;
+}
+
+</style>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container mt-4">
+
+<h1 class="page-title">
+My Applications
+</h1>
+
+<div class="app-card">
+
+<div class="table-responsive">
+
+<table class="table">
+
+<thead>
+
+<tr>
+<th>Company</th>
+<th>Job Title</th>
+<th>Applied Date</th>
+<th>Deadline</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% if applications.items %}
+
+{% for app in applications.items %}
+
+<tr>
+
+<td>
+{{ app.placement_drive.company.company_name }}
+</td>
+
+<td>
+{{ app.placement_drive.job_title }}
+</td>
+
+<td>
+{{ app.applied_at.strftime('%d %b %Y %H:%M') }}
+</td>
+
+<td>
+{{ app.placement_drive.application_deadline.strftime('%d %b %Y') }}
+</td>
+
+<td>
+
+{% if app.status == 'Applied' %}
+<span class="badge badge-applied">Applied</span>
+
+{% elif app.status == 'Shortlisted' %}
+<span class="badge badge-shortlisted">Shortlisted</span>
+
+{% elif app.status == 'Selected' %}
+<span class="badge badge-selected">Selected</span>
+
+{% else %}
+<span class="badge badge-rejected">Rejected</span>
+{% endif %}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+<td colspan="5" class="no-data">
+No applications yet.
+<a href="{{ url_for('student.view_drives') }}">Apply for drives</a>
+</td>
+</tr>
+
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}View Applications - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.admin-title{
+font-weight:700;
+color:#2c3e50;
+}
+
+.admin-accent{
+border-bottom:4px solid #f39c12;
+width:70px;
+margin-top:6px;
+margin-bottom:25px;
+}
+
+.table-container{
+background:white;
+border-radius:8px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+overflow:hidden;
+}
+
+.table thead{
+background:#2c3e50;
+border-bottom:3px solid #f39c12;
+color:white;
+}
+
+.table tbody tr:hover{
+background:#f8f9fa;
+}
+
+.badge{
+padding:6px 12px;
+font-size:13px;
+}
+
+.pagination .page-link{
+color:#f39c12;
+}
+
+.pagination .page-item.active .page-link{
+background:#f39c12;
+border-color:#f39c12;
+color:white;
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+<div class="mb-4">
+<h2 class="admin-title mb-1">All Applications</h2>
+<div class="admin-accent"></div>
+</div>
+
+<div class="table-container">
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle mb-0">
+
+<thead>
+<tr>
+<th>Student</th>
+<th>Company</th>
+<th>Job Title</th>
+<th>Applied Date</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% if applications.items %}
+
+{% for app in applications.items %}
+
+<tr>
+
+<td>{{ app.student.name }}</td>
+
+<td>{{ app.placement_drive.company.company_name }}</td>
+
+<td>{{ app.placement_drive.job_title }}</td>
+
+<td>{{ app.applied_at.strftime('%Y-%m-%d %H:%M') }}</td>
+
+<td>
+
+{% if app.status == 'Applied' %}
+<span class="badge bg-info">Applied</span>
+
+{% elif app.status == 'Shortlisted' %}
+<span class="badge bg-warning text-dark">Shortlisted</span>
+
+{% elif app.status == 'Selected' %}
+<span class="badge bg-success">Selected</span>
+
+{% else %}
+<span class="badge bg-danger">Rejected</span>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+<td colspan="5" class="text-center text-muted py-4">
+No applications found
+</td>
+</tr>
+
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+
+{% if applications.pages > 1 %}
+
+<nav class="mt-4">
+
+<ul class="pagination justify-content-center">
+
+{% if applications.has_prev %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.view_applications', page=applications.prev_num) }}">
+Previous
+</a>
+</li>
+{% endif %}
+
+{% for page_num in applications.iter_pages() %}
+
+{% if page_num %}
+
+{% if page_num == applications.page %}
+<li class="page-item active">
+<span class="page-link">{{ page_num }}</span>
+</li>
+{% else %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.view_applications', page=page_num) }}">
+{{ page_num }}
+</a>
+</li>
+{% endif %}
+
+{% endif %}
+
+{% endfor %}
+
+{% if applications.has_next %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.view_applications', page=applications.next_num) }}">
+Next
+</a>
+</li>
+{% endif %}
+
+</ul>
+
+</nav>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Student Application History - Placement Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header with Back Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4>Student Application History</h4>
+            <p class="text-muted mb-0">
+                <strong>Student Name:</strong> {{ current_user.name }} | 
+                <strong>Department:</strong> {{ current_user.branch or 'N/A' }}
+            </p>
+        </div>
+        <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-secondary">Back</a>
+    </div>
+
+    <!-- Application History Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 8%">Drive No</th>
+                        <th style="width: 15%">Interview</th>
+                        <th>Job Title</th>
+                        <th style="width: 15%">Results</th>
+                        <th style="width: 20%">Remark</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if applications %}
+                        {% set counter = [] %}
+                        {% for app in applications|reverse %}
+                            {% if counter.append(counter|length + 1) %}{% endif %}
+                            <tr>
+                                <td>{{ counter|length }}</td>
+                                <td>
+                                    <span class="text-muted">In-person</span>
+                                </td>
+                                <td>
+                                    <strong>{{ app.placement_drive.job_title }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ app.placement_drive.company.company_name }}</small>
+                                </td>
+                                <td>
+                                    {% if app.status == 'Applied' %}
+                                        <span class="badge bg-info">Applied</span>
+                                    {% elif app.status == 'Shortlisted' %}
+                                        <span class="badge bg-warning text-dark">Shortlisted</span>
+                                    {% elif app.status == 'Selected' %}
+                                        <span class="badge bg-success">Selected</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted">—</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">No application history yet</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Drives - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.admin-title{
+font-weight:700;
+color:#2c3e50;
+}
+
+.admin-accent{
+border-bottom:4px solid #f39c12;
+width:70px;
+margin-top:6px;
+margin-bottom:25px;
+}
+
+.table-container{
+background:white;
+border-radius:8px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+overflow:hidden;
+}
+
+.table thead{
+background:#2c3e50;
+border-bottom:3px solid #f39c12;
+color:white;
+}
+
+.table tbody tr:hover{
+background:#f8f9fa;
+}
+
+.btn-approve{
+background:#27ae60;
+border:none;
+color:white;
+}
+
+.btn-approve:hover{
+background:#1e8449;
+}
+
+.btn-reject{
+background:#f39c12;
+border:none;
+color:white;
+}
+
+.btn-reject:hover{
+background:#d68910;
+}
+
+.pagination .page-link{
+color:#f39c12;
+}
+
+.pagination .page-item.active .page-link{
+background:#f39c12;
+border-color:#f39c12;
+color:white;
+}
+
+.btn-view-details{
+background:#3b6ea8;
+border:none;
+color:white;
+}
+
+.btn-view-details:hover{
+background:#2d5580;
+}
+
+.drive-details-modal .modal-header{
+background:#3b6ea8;
+color:white;
+border:none;
+}
+
+.drive-details-modal .modal-body{
+padding:2rem;
+}
+
+.drive-detail-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:1.5rem;
+margin-bottom:1.5rem;
+}
+
+.drive-detail-row.full{
+grid-template-columns:1fr;
+}
+
+.drive-detail-label{
+font-weight:600;
+color:#2c3e50;
+font-size:0.9rem;
+text-transform:uppercase;
+letter-spacing:0.5px;
+margin-bottom:0.35rem;
+}
+
+.drive-detail-value{
+color:#555;
+font-size:0.95rem;
+}
+
+.drive-detail-value strong{
+color:#2c3e50;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="mb-4">
+<h2 class="admin-title mb-1">Manage Placement Drives</h2>
+<div class="admin-accent"></div>
+</div>
+
+<div class="table-container">
+<div class="table-responsive">
+
+<table class="table table-hover align-middle mb-0">
+
+<thead>
+<tr>
+<th>Company</th>
+<th>Job Title</th>
+<th>Deadline</th>
+<th>Applications</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% if drives.items %}
+
+{% for drive in drives.items %}
+
+<tr>
+
+<td>{{ drive.company.company_name }}</td>
+<td>{{ drive.job_title }}</td>
+<td>{{ drive.application_deadline.strftime('%Y-%m-%d') }}</td>
+<td>{{ drive.get_application_count() }}</td>
+
+<td>
+
+{% if drive.status == 'Pending' %}
+<span class="badge bg-warning text-dark">Pending</span>
+
+{% elif drive.status == 'Approved' %}
+<span class="badge bg-success">Approved</span>
+
+{% elif drive.status == 'Closed' %}
+<span class="badge bg-secondary">Closed</span>
+
+{% else %}
+<span class="badge bg-danger">Rejected</span>
+{% endif %}
+
+</td>
+
+<td>
+
+<div class="d-flex gap-2" style="flex-wrap:wrap;">
+
+<button type="button" class="btn btn-view-details btn-sm" data-bs-toggle="modal" data-bs-target="#driveModal{{ drive.id }}">
+View Details
+</button>
+
+{% if drive.status == 'Pending' %}
+
+<form method="POST"
+action="{{ url_for('admin.approve_drive', drive_id=drive.id) }}" style="display:inline;">
+
+<button type="submit"
+class="btn btn-approve btn-sm">
+Approve
+</button>
+
+</form>
+
+<form method="POST"
+action="{{ url_for('admin.reject_drive', drive_id=drive.id) }}" style="display:inline;">
+
+<button type="submit"
+class="btn btn-reject btn-sm">
+Reject
+</button>
+
+</form>
+
+{% endif %}
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+<td colspan="6" class="text-center text-muted py-4">
+No drives found
+</td>
+</tr>
+
+{% endif %}
+
+</tbody>
+</table>
+
+</div>
+</div>
+
+
+{% if drives.pages > 1 %}
+
+<nav class="mt-4">
+
+<ul class="pagination justify-content-center">
+
+{% if drives.has_prev %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.manage_drives', page=drives.prev_num) }}">
+Previous
+</a>
+</li>
+{% endif %}
+
+{% for page_num in drives.iter_pages() %}
+
+{% if page_num %}
+
+{% if page_num == drives.page %}
+<li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+{% else %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.manage_drives', page=page_num) }}">
+{{ page_num }}
+</a>
+</li>
+{% endif %}
+
+{% endif %}
+
+{% endfor %}
+
+{% if drives.has_next %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('admin.manage_drives', page=drives.next_num) }}">
+Next
+</a>
+</li>
+{% endif %}
+
+</ul>
+
+</nav>
+
+{% endif %}
+
+</div>
+
+<!-- Drive Details Modals -->
+{% if drives.items %}
+{% for drive in drives.items %}
+
+<div class="modal fade" id="driveModal{{ drive.id }}" tabindex="-1" aria-labelledby="driveModal{{ drive.id }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content drive-details-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="driveModal{{ drive.id }}Label">Placement Drive Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Company Info -->
+        <div class="drive-detail-row">
+          <div>
+            <div class="drive-detail-label">Company Name</div>
+            <div class="drive-detail-value"><strong>{{ drive.company.company_name }}</strong></div>
+          </div>
+          <div>
+            <div class="drive-detail-label">Company Email</div>
+            <div class="drive-detail-value">{{ drive.company.email }}</div>
+          </div>
+        </div>
+
+        <!-- Job Info -->
+        <div class="drive-detail-row">
+          <div>
+            <div class="drive-detail-label">Job Title</div>
+            <div class="drive-detail-value"><strong>{{ drive.job_title }}</strong></div>
+          </div>
+          <div>
+            <div class="drive-detail-label">Salary</div>
+            <div class="drive-detail-value"><strong>₹ {{ drive.salary if drive.salary else 'Not Specified' }}</strong></div>
+          </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="drive-detail-row">
+          <div>
+            <div class="drive-detail-label">Application Deadline</div>
+            <div class="drive-detail-value"><strong>{{ drive.application_deadline.strftime('%d %B %Y') }}</strong></div>
+          </div>
+          <div>
+            <div class="drive-detail-label">Status</div>
+            <div class="drive-detail-value">
+              {% if drive.status == 'Pending' %}
+                <span class="badge bg-warning text-dark">{{ drive.status }}</span>
+              {% elif drive.status == 'Approved' %}
+                <span class="badge bg-success">{{ drive.status }}</span>
+              {% elif drive.status == 'Closed' %}
+                <span class="badge bg-secondary">{{ drive.status }}</span>
+              {% else %}
+                <span class="badge bg-danger">{{ drive.status }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="drive-detail-row full">
+          <div>
+            <div class="drive-detail-label">Job Description</div>
+            <div class="drive-detail-value" style="line-height:1.6;">{{ drive.job_description if drive.job_description else 'No description provided' }}</div>
+          </div>
+        </div>
+
+        <!-- Eligibility -->
+        <div class="drive-detail-row full">
+          <div>
+            <div class="drive-detail-label">Eligibility Criteria</div>
+            <div class="drive-detail-value" style="line-height:1.6;">{{ drive.eligibility_criteria if drive.eligibility_criteria else 'No criteria specified' }}</div>
+          </div>
+        </div>
+
+        <!-- Applications -->
+        <div class="drive-detail-row">
+          <div>
+            <div class="drive-detail-label">Total Applications</div>
+            <div class="drive-detail-value"><strong>{{ drive.get_application_count() }}</strong></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="border-top:1px solid #e8e8e8;">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endfor %}
+{% endif %}
+
+{% endblock %}

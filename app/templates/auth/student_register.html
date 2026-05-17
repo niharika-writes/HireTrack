@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Student Registration - HireTrack{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --role-color: #27ae60;
+        --light-bg: #f5f6f8;
+        --card-white: #ffffff;
+        --border-light: #e8e8e8;
+        --text-dark: #2c2c2c;
+    }
+    
+    body {
+        background-color: var(--light-bg);
+    }
+    
+    .auth-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 3rem 1rem;
+    }
+    
+    .auth-card {
+        background: var(--card-white);
+        border: none;
+        border-top: 6px solid var(--role-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 900px;
+    }
+    
+    .auth-card-header {
+        padding: 2rem;
+        border-bottom: 1px solid var(--border-light);
+        background-color: #fafbfc;
+    }
+    
+    .auth-card-header h4 {
+        color: var(--text-dark);
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    
+    .auth-card-body {
+        padding: 2rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .form-row.full {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.6rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-control {
+        border: 1.5px solid var(--border-light);
+        border-radius: 6px;
+        padding: 0.85rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--role-color);
+        box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.15);
+        outline: none;
+    }
+    
+    .form-control::placeholder {
+        color: #999;
+    }
+    
+    .btn-submit {
+        background-color: var(--role-color);
+        border: none;
+        color: white;
+        padding: 0.95rem 2rem;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        width: 100%;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+    
+    .btn-submit:hover {
+        background-color: #229954;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(39, 174, 96, 0.25);
+    }
+    
+    .divider {
+        border-top: 1px solid var(--border-light);
+        margin: 2rem 0;
+    }
+    
+    .footer-link {
+        text-align: center;
+        color: #666;
+        font-size: 0.95rem;
+    }
+    
+    .footer-link a {
+        color: var(--role-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .footer-link a:hover {
+        text-decoration: underline;
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 0.35rem;
+    }
+    
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <h4>✓ Student Registration</h4>
+        </div>
+        <div class="auth-card-body">
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <!-- First Row -->
+                <div class="form-row">
+                    <div>
+                        {{ form.roll_number.label(class="form-label") }}
+                        {% if form.roll_number.errors %}
+                            {{ form.roll_number(class="form-control is-invalid", placeholder="B20001") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.roll_number.errors %}{{ error }}<br>{% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.roll_number(class="form-control", placeholder="B20001") }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.name.label(class="form-label") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="form-control is-invalid", placeholder="John Doe") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}{{ error }}<br>{% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="form-control", placeholder="John Doe") }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Email Row (Full Width) -->
+                <div class="form-row full">
+                    <div>
+                        {{ form.email.label(class="form-label") }}
+                        {% if form.email.errors %}
+                            {{ form.email(class="form-control is-invalid", placeholder="john@example.com") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}{{ error }}<br>{% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.email(class="form-control", placeholder="john@example.com") }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- CGPA and Branch Row -->
+                <div class="form-row">
+                    <div>
+                        {{ form.cgpa.label(class="form-label") }}
+                        {% if form.cgpa.errors %}
+                            {{ form.cgpa(class="form-control is-invalid", placeholder="8.5") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.cgpa.errors %}{{ error }}<br>{% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.cgpa(class="form-control", placeholder="8.5") }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.branch.label(class="form-label") }}
+                        {% if form.branch.errors %}
+                            {{ form.branch(class="form-control is-invalid", placeholder="Computer Science") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.branch.errors %}{{ error }}<br>{% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.branch(class="form-control", placeholder="Computer Science") }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Password Row -->
+                <div class="form-row">
+                    <div>
+                        {{ form.password.label(class="form-label") }}
+                        {% if form.password.errors %}
+                            {{ form.password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}{{ error }}<br>{% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.confirm_password.label(class="form-label") }}
+                        {% if form.confirm_password.errors %}
+                            {{ form.confirm_password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.confirm_password.errors %}{{ error }}<br>{% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.confirm_password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {{ form.submit(class="btn btn-submit", value="Register") }}
+            </form>
+            
+            <div class="divider"></div>
+            <p class="footer-link">
+                Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

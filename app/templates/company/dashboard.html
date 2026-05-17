@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}Company Dashboard - Placement Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+
+:root{
+--company-primary:#2c2c2c;
+--company-accent:#3b6ea8;
+--light-bg:#f5f6f8;
+--card-white:#ffffff;
+--border-light:#e8e8e8;
+}
+
+body{
+background:var(--light-bg);
+}
+
+.company-header{
+color:var(--company-primary);
+font-weight:700;
+font-size:2rem;
+margin-bottom:25px;
+}
+
+/* Dashboard Cards */
+
+.dashboard-card{
+transition:.2s ease;
+}
+
+.dashboard-card:hover{
+transform:translateY(-3px);
+box-shadow:0 8px 18px rgba(0,0,0,.12);
+}
+
+/* Section Card */
+
+.section-card{
+background:var(--card-white);
+border:none;
+border-top:4px solid var(--company-accent);
+border-radius:8px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+margin-bottom:30px;
+overflow:hidden;
+}
+
+.section-card-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 22px;
+border-bottom:1px solid var(--border-light);
+}
+
+.section-card-header h5{
+margin:0;
+font-weight:600;
+color:var(--company-primary);
+}
+
+.section-card-body{
+padding:0;
+}
+
+/* Table */
+
+.table{
+margin:0;
+}
+
+.table thead{
+background:#2c3e50;
+color:white;
+border-bottom:3px solid var(--company-accent);
+}
+
+.table thead th{
+border:none;
+padding:14px 20px;
+font-weight:600;
+}
+
+.table tbody td{
+padding:14px 20px;
+vertical-align:middle;
+border-bottom:1px solid var(--border-light);
+}
+
+.table tbody tr:hover{
+background:#f8f9fa;
+}
+
+.table tbody tr:last-child td{
+border-bottom:none;
+}
+
+/* Buttons */
+
+.btn-primary-company{
+background:var(--company-accent);
+border:none;
+color:white;
+font-size:14px;
+padding:6px 14px;
+border-radius:4px;
+transition:.2s;
+}
+
+.btn-primary-company:hover{
+background:#2d5580;
+color:white;
+}
+
+.btn-secondary-company{
+background:#6c757d;
+border:none;
+color:white;
+font-size:14px;
+padding:6px 14px;
+border-radius:4px;
+transition:.2s;
+}
+
+.btn-secondary-company:hover{
+background:#5a6268;
+color:white;
+}
+
+/* Actions */
+
+.btn-group-actions{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+</style>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container mt-4">
+
+<h1 class="company-header">
+Welcome {{ company.company_name }}
+</h1>
+
+
+<!-- Statistics -->
+
+<div class="row mb-4">
+
+<div class="col-md-6 col-lg-3">
+<div class="dashboard-card">
+<h5>Active Drives</h5>
+<div class="number" id="total-drives">{{ total_drives }}</div>
+</div>
+</div>
+
+<div class="col-md-6 col-lg-3">
+<div class="dashboard-card" style="background:linear-gradient(135deg,#27ae60,#229954);">
+<h5>Total Applications</h5>
+<div class="number" id="total-applications">{{ total_applications }}</div>
+</div>
+</div>
+
+<div class="col-md-6 col-lg-3">
+<div class="dashboard-card" style="background:linear-gradient(135deg,#f39c12,#d68910);">
+<h5>Shortlisted</h5>
+<div class="number" id="total-shortlisted">{{ total_shortlisted }}</div>
+</div>
+</div>
+
+<div class="col-md-6 col-lg-3">
+<div class="dashboard-card" style="background:linear-gradient(135deg,#e74c3c,#c0392b);">
+<h5>Selected</h5>
+<div class="number" id="total-selected">{{ total_selected }}</div>
+</div>
+</div>
+
+</div>
+
+
+
+<!-- Upcoming Drives -->
+
+<div class="section-card">
+
+<div class="section-card-header">
+<h5>Upcoming Drives</h5>
+
+<a href="{{ url_for('company.create_drive') }}"
+class="btn btn-primary-company">
++ Create Drive
+</a>
+
+</div>
+
+
+<div class="section-card-body">
+
+<div class="table-responsive">
+
+<table class="table">
+
+<thead>
+<tr>
+<th style="width:8%">Sr</th>
+<th>Drive Name</th>
+<th>Deadline</th>
+<th style="width:20%">Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for drive in drives %}
+{% if drive.status != 'Closed' %}
+
+<tr>
+
+<td>{{ loop.index }}</td>
+
+<td>
+<strong>{{ drive.job_title }}</strong>
+</td>
+
+<td>
+{{ drive.application_deadline.strftime('%d %b %Y') }}
+</td>
+
+<td>
+
+<div class="btn-group-actions">
+
+<a href="{{ url_for('company.view_applications', drive_id=drive.id) }}"
+class="btn btn-primary-company">
+View Details
+</a>
+
+<form method="POST"
+action="{{ url_for('company.close_drive', drive_id=drive.id) }}"
+style="display:inline;"
+onsubmit="return confirm('Mark this drive as complete?')">
+
+<button type="submit"
+class="btn btn-secondary-company">
+Mark Complete
+</button>
+
+</form>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endif %}
+{% endfor %}
+
+{% if drives|length == 0 %}
+<tr>
+<td colspan="4" class="text-center text-muted py-4">
+No upcoming drives.
+<a href="{{ url_for('company.create_drive') }}">Create one</a>
+</td>
+</tr>
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+</div>
+
+
+
+<!-- Closed Drives -->
+
+<div class="section-card">
+
+<div class="section-card-header">
+<h5>Closed Drives</h5>
+</div>
+
+<div class="section-card-body">
+
+<div class="table-responsive">
+
+<table class="table">
+
+<thead>
+<tr>
+<th style="width:8%">Sr</th>
+<th>Drive Name</th>
+<th>Closed Date</th>
+<th style="width:15%">Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% set closed_count = 0 %}
+
+{% for drive in drives %}
+{% if drive.status == 'Closed' %}
+
+{% set closed_count = closed_count + 1 %}
+
+<tr>
+
+<td>{{ closed_count }}</td>
+
+<td>
+<strong>{{ drive.job_title }}</strong>
+</td>
+
+<td>
+{{ drive.updated_at.strftime('%d %b %Y') }}
+</td>
+
+<td>
+<button class="btn btn-secondary-company">
+Update
+</button>
+</td>
+
+</tr>
+
+{% endif %}
+{% endfor %}
+
+{% if closed_count == 0 %}
+<tr>
+<td colspan="4" class="text-center text-muted py-4">
+No closed drives yet.
+</td>
+</tr>
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+</div>
+
+</div>
+
+
+
+<script>
+async function refreshDashboardData(){
+    try {
+        const response = await fetch('{{ url_for("company.api_dashboard_data") }}')
+        if(!response.ok) return
+        const data = await response.json()
+        document.getElementById('total-drives').textContent = data.total_drives
+        document.getElementById('total-applications').textContent = data.total_applications
+        document.getElementById('total-shortlisted').textContent = data.total_shortlisted
+        document.getElementById('total-selected').textContent = data.total_selected
+    } catch(e){}
+}
+
+// Refresh immediately and then every 5 seconds
+refreshDashboardData()
+setInterval(refreshDashboardData, 5000)
+</script>
+
+{% endblock %}

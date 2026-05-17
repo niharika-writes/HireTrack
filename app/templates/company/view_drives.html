@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+
+{% block title %}My Drives - Company{% endblock %}
+
+{% block extra_css %}
+<style>
+
+:root{
+--company-primary:#2c2c2c;
+--company-accent:#3b6ea8;
+--light-bg:#f5f6f8;
+--card-white:#ffffff;
+--border-light:#e8e8e8;
+}
+
+body{
+background-color:var(--light-bg);
+}
+
+/* Page header */
+
+.page-header{
+color:var(--company-primary);
+font-weight:700;
+margin-bottom:20px;
+}
+
+/* Create drive button */
+
+.btn-create-drive{
+background:var(--company-accent);
+border:none;
+color:white;
+padding:8px 16px;
+font-weight:500;
+}
+
+.btn-create-drive:hover{
+background:#2d5580;
+color:white;
+}
+
+/* Table container */
+
+.table-container{
+background:white;
+border-radius:8px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+border:1px solid var(--border-light);
+border-top:4px solid var(--company-accent);
+overflow:hidden;
+}
+
+/* Table */
+
+.table{
+margin:0;
+background:white;
+}
+
+.table thead{
+background:#f7f9fc;
+border-bottom:1px solid var(--border-light);
+}
+
+.table thead th{
+font-weight:600;
+color:#2c2c2c;
+padding:12px 16px;
+border:none;
+}
+
+.table tbody td{
+padding:12px 16px;
+vertical-align:middle;
+border-bottom:1px solid var(--border-light);
+}
+
+.table tbody tr:hover{
+background:#f9fafc;
+}
+
+/* Description column fix */
+
+.description-cell{
+max-width:220px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+/* Application link */
+
+.applications-link{
+color:var(--company-accent);
+font-weight:500;
+text-decoration:none;
+}
+
+.applications-link:hover{
+text-decoration:underline;
+}
+
+/* Status badge */
+
+.badge{
+padding:6px 10px;
+font-size:12px;
+}
+
+/* Actions */
+
+.actions{
+display:flex;
+gap:6px;
+flex-wrap:nowrap;
+}
+
+/* Buttons */
+
+.btn-action{
+padding:4px 10px;
+font-size:13px;
+border-radius:4px;
+border:none;
+color:white;
+}
+
+.btn-edit{
+background:var(--company-accent);
+}
+
+.btn-edit:hover{
+background:#2d5580;
+}
+
+.btn-close-drive{
+background:#f4c542;
+color:#333;
+}
+
+.btn-close-drive:hover{
+background:#e3b838;
+}
+
+.btn-delete{
+background:#dc3545;
+}
+
+.btn-delete:hover{
+background:#c82333;
+}
+
+/* Pagination */
+
+.pagination .page-link{
+color:var(--company-accent);
+}
+
+.pagination .page-item.active .page-link{
+background:var(--company-accent);
+border-color:var(--company-accent);
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h1 class="page-header">My Placement Drives</h1>
+
+<a href="{{ url_for('company.create_drive') }}" class="btn btn-create-drive mb-3">
++ Create New Drive
+</a>
+
+<div class="table-container">
+
+<div class="table-responsive">
+
+<table class="table">
+
+<thead>
+<tr>
+<th>Job Title</th>
+<th>Description</th>
+<th>Salary</th>
+<th>Deadline</th>
+<th>Applications</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% if drives.items %}
+
+{% for drive in drives.items %}
+
+<tr>
+
+<td><strong>{{ drive.job_title }}</strong></td>
+
+<td class="description-cell">
+{{ drive.job_description[:60] }}...
+</td>
+
+<td>{{ drive.salary or 'N/A' }}</td>
+
+<td>{{ drive.application_deadline.strftime('%d %b %Y') }}</td>
+
+<td>
+
+<a href="{{ url_for('company.view_applications', drive_id=drive.id) }}"
+class="applications-link">
+
+{{ drive.get_application_count() }} application{{ 's' if drive.get_application_count() != 1 else '' }}
+
+</a>
+
+</td>
+
+<td>
+
+{% if drive.status == 'Pending' %}
+<span class="badge bg-warning text-dark">Pending</span>
+
+{% elif drive.status == 'Approved' %}
+<span class="badge bg-success">Approved</span>
+
+{% elif drive.status == 'Closed' %}
+<span class="badge bg-secondary">Closed</span>
+
+{% else %}
+<span class="badge bg-danger">Rejected</span>
+{% endif %}
+
+</td>
+
+<td>
+
+<div class="actions">
+
+<a href="{{ url_for('company.edit_drive', drive_id=drive.id) }}"
+class="btn-action btn-edit">
+Edit
+</a>
+
+{% if drive.status == 'Approved' %}
+
+<form method="POST"
+action="{{ url_for('company.close_drive', drive_id=drive.id) }}">
+
+<button type="submit"
+class="btn-action btn-close-drive">
+Close
+</button>
+
+</form>
+
+{% endif %}
+
+<form method="POST"
+action="{{ url_for('company.delete_drive', drive_id=drive.id) }}"
+onsubmit="return confirm('Delete this drive?');">
+
+<button type="submit"
+class="btn-action btn-delete">
+Delete
+</button>
+
+</form>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+<td colspan="7" class="text-center text-muted py-4">
+No drives created yet.
+<a href="{{ url_for('company.create_drive') }}">Create one</a>
+</td>
+</tr>
+
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+
+{% if drives.pages > 1 %}
+
+<nav class="mt-4">
+
+<ul class="pagination justify-content-center">
+
+{% if drives.has_prev %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('company.view_drives', page=drives.prev_num) }}">
+Previous
+</a>
+</li>
+{% endif %}
+
+{% for page_num in drives.iter_pages() %}
+
+{% if page_num %}
+
+{% if page_num == drives.page %}
+<li class="page-item active">
+<span class="page-link">{{ page_num }}</span>
+</li>
+
+{% else %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('company.view_drives', page=page_num) }}">
+{{ page_num }}
+</a>
+</li>
+
+{% endif %}
+
+{% endif %}
+
+{% endfor %}
+
+{% if drives.has_next %}
+<li class="page-item">
+<a class="page-link"
+href="{{ url_for('company.view_drives', page=drives.next_num) }}">
+Next
+</a>
+</li>
+{% endif %}
+
+</ul>
+
+</nav>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

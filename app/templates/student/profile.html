@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Student Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+
+:root{
+--student-primary:#3b6ea8;
+--student-dark:#2d5580;
+--light-bg:#f5f6f8;
+--border-light:#e8e8e8;
+}
+
+body{
+background:var(--light-bg);
+}
+
+/* Card */
+
+.profile-card{
+background:white;
+border-radius:8px;
+border-top:4px solid var(--student-primary);
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+overflow:hidden;
+}
+
+.profile-header{
+background:#2c3e50;
+color:white;
+padding:16px 22px;
+font-weight:600;
+font-size:18px;
+}
+
+.profile-body{
+padding:24px;
+}
+
+/* Inputs */
+
+.form-control{
+border:1px solid #ced4da;
+padding:10px;
+}
+
+.form-control:focus{
+border-color:var(--student-primary);
+box-shadow:none;
+}
+
+/* Buttons */
+
+.btn-student{
+background:var(--student-primary);
+color:white;
+border:none;
+padding:10px;
+font-weight:500;
+}
+
+.btn-student:hover{
+background:var(--student-dark);
+color:white;
+}
+
+.btn-back{
+background:#6c757d;
+color:white;
+border:none;
+padding:10px;
+}
+
+.btn-back:hover{
+background:#5a6268;
+color:white;
+}
+
+.resume-link{
+text-decoration:none;
+font-weight:500;
+}
+
+.resume-link:hover{
+text-decoration:underline;
+}
+
+</style>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container mt-4">
+
+<div class="row justify-content-center">
+
+<div class="col-md-8">
+
+<div class="profile-card">
+
+<div class="profile-header">
+My Profile
+</div>
+
+<div class="profile-body">
+
+<form method="POST" enctype="multipart/form-data" novalidate>
+
+{{ form.hidden_tag() }}
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Roll Number</label>
+<input type="text" class="form-control" value="{{ current_user.roll_number }}" disabled>
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Email</label>
+<input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+</div>
+
+</div>
+
+
+<div class="mb-3">
+{{ form.name.label(class="form-label") }}
+{{ form.name(class="form-control") }}
+</div>
+
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+{{ form.cgpa.label(class="form-label") }}
+{{ form.cgpa(class="form-control") }}
+</div>
+
+<div class="col-md-6 mb-3">
+{{ form.branch.label(class="form-label") }}
+{{ form.branch(class="form-control") }}
+</div>
+
+</div>
+
+
+<div class="mb-3">
+
+{{ form.resume.label(class="form-label") }}
+
+{{ form.resume(class="form-control") }}
+
+<small class="text-muted">
+Accepted formats: PDF, DOC, DOCX (Max size: 16MB)
+</small>
+
+{% if current_user.resume_path %}
+
+<div class="mt-2">
+
+<strong>Current Resume:</strong>
+
+<a href="{{ url_for('student.download_resume') }}"
+target="_blank"
+class="resume-link ms-2">
+
+📄 {{ current_user.resume_path }}
+
+</a>
+
+</div>
+
+{% endif %}
+
+</div>
+
+
+<div class="mb-3">
+
+{{ form.submit(class="btn btn-student w-100") }}
+
+</div>
+
+</form>
+
+<hr>
+
+<a href="{{ url_for('student.dashboard') }}"
+class="btn btn-back w-100">
+
+Back to Dashboard
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+{% endblock %}
